@@ -3,7 +3,8 @@ import cv2
 import torch
 import torch.nn as nn
 import argparse
-from load_data import *
+from load_data import demoTestDataLoader
+from torch.utils.data import DataLoader
 from time import time
 from roi_pooling import roi_pooling_ims
 from PIL import Image, ImageDraw, ImageFont

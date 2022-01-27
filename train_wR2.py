@@ -2,12 +2,13 @@ import cv2
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 from torch.autograd import Variable
 import numpy as np
 import os
 import argparse
 from time import time
-from load_data import *
+from load_data import ChaLocDataLoader
 from torch.optim import lr_scheduler
 
 def get_n_params(model):

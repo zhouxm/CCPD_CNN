@@ -1,4 +1,4 @@
-from torch.utils.data import *
+from torch.utils.data import Dataset
 from imutils import paths
 import cv2
 import numpy as np

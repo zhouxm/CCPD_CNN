@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import DataLoader
 import numpy as np
 import os
 from visdom import Visdom
 import argparse
 from time import time
-from load_data import *
+from load_data import labelTestDataLoader, labelFpsDataLoader
 from roi_pooling import roi_pooling_ims
 from torch.optim import lr_scheduler
 from loguru import logger
@@ -310,39 +311,32 @@ def train_model(model, criterion, optimizer, num_epochs=25):
                 pass
 
             if i % 50 == 1:
-                with open(args['writeFile'], 'a') as outF:
-                    outF.write('train %s images, use %s seconds, loss %s\n' % (
-                        i * batchSize, time() - start,
-                        sum(lossAver) / len(lossAver) if len(lossAver) > 0 else 'NoLoss'))
+                with open(args['writeFile'], 'a') as file:
+                    _loss=sum(lossAver) / len(lossAver) if len(lossAver) > 0 else "NoLoss"
+                    _t = time()-start
+                    file.write(f'train:{i * batchSize} images, use {_t} seconds, loss:{_loss}' )
                 torch.save(model.state_dict(), storeName)
-        logger.info('%s %s %s\n' % (epoch, sum(lossAver) / len(lossAver), time() - start))
+        _msg = f"epoch:{epoch}\t loss:{sum(lossAver) / len(lossAver) if len(lossAver) > 0 else 'NoLoss'}\t time:{time()-start}"
+        logger.info(_msg)
         model.eval()
         count, correct, error, precision, avgTime = eval(model, testDirs)
-        with open(args['writeFile'], 'a') as outF:
-            outF.write('%s %s %s\n' % (epoch, sum(lossAver) / len(lossAver), time() - start))
-            outF.write('*** total %s error %s precision %s avgTime %s\n' % (count, error, precision, avgTime))
+        with open(args['writeFile'], 'a') as file:
+            file.write(f'{_msg}\n' )
+            file.write(f'*** total:{count}\t error:{error}\t precision:{precision}\r avgTime:{avgTime}\n')
         torch.save(model.state_dict(), storeName + str(epoch))
     return model
 
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--images", required=True,
-                    help="path to the input file")
-    ap.add_argument("-n", "--epochs", default=10000,
-                    help="epochs for train")
-    ap.add_argument("-b", "--batchsize", default=5,
-                    help="batch size for train")
-    ap.add_argument("-se", "--start_epoch", default=5,
-                    help="start epoch for train")
-    ap.add_argument("-t", "--test", required=True,
-                    help="dirs for test")
-    ap.add_argument("-r", "--resume", default='111',
-                    help="file for re-train")
-    ap.add_argument("-f", "--folder", default='weight/CCPD_checkpoints/',
-                    help="folder to store model")
-    ap.add_argument("-w", "--writeFile", default='weight/fh02.out',
-                    help="file for output")
+    ap.add_argument("-i", "--images", required=True, help="path to the input file")
+    ap.add_argument("-n", "--epochs", default=10000, help="epochs for train")
+    ap.add_argument("-b", "--batchsize", default=5, help="batch size for train")
+    ap.add_argument("-se", "--start_epoch", default=5, help="start epoch for train")
+    ap.add_argument("-t", "--test", required=True, help="dirs for test")
+    ap.add_argument("-r", "--resume", default='111', help="file for re-train")
+    ap.add_argument("-f", "--folder", default='weight/CCPD_checkpoints/', help="folder to store model")
+    ap.add_argument("-w", "--writeFile", default='weight/fh02.out', help="file for output")
     ap.add_argument("--visdom",type=str,default="rpnet",help="name of visdom")
     args = vars(ap.parse_args())
     # vis=Visdom(args["visdom"])
