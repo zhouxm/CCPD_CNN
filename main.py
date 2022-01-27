@@ -290,16 +290,15 @@ if __name__ == '__main__':
             labelPred[4]] + ads[labelPred[5]] + ads[labelPred[6]]
         print('图片名称:{0}识别结果{1}'.format(ims[0], lpn))
         # PIL图片上打印汉字
-        pilImg = Image.fromarray(cv2.cvtColor(cv2Img, cv2.COLOR_BGR2RGB))
-        draw = ImageDraw.Draw(pilImg)
-        font = ImageFont.truetype("simhei.ttf", 40, encoding="utf-8")  # 参数1：字体文件路径，参数2：字体大小
-        draw.text((int(left_up[0]), int(left_up[1]) - 40), lpn, (255, 0, 0),
-                  font=font)  # 参数1：打印坐标，参数2：文本，参数3：字体颜色，参数4：字体
-        # PIL图片转cv2 图片
-        cv2charimg = cv2.cvtColor(np.array(pilImg), cv2.COLOR_RGB2BGR)
-        # cv2.putText(cv2Img, lpn, (int(left_up[0]), int(left_up[1])-20), cv2.FONT_ITALIC, 2, (0, 0, 255))
-        dstFileName = 'result/' + ims[0][-5:-4] + '.jpg'
-        cv2.imshow('charimg',cv2charimg)
-        cv2.waitKey(0)
+        # pilImg = Image.fromarray(cv2.cvtColor(cv2Img, cv2.COLOR_BGR2RGB))
+        # draw = ImageDraw.Draw(pilImg)
+        # font = ImageFont.truetype("simhei.ttf", 40, encoding="utf-8")  # 参数1：字体文件路径，参数2：字体大小
+        # draw.text((int(left_up[0]), int(left_up[1]) - 40), lpn, (255, 0, 0), font=font)  # 参数1：打印坐标，参数2：文本，参数3：字体颜色，参数4：字体
+        # # PIL图片转cv2 图片
+        # cv2charimg = cv2.cvtColor(np.array(pilImg), cv2.COLOR_RGB2BGR)
+        # # cv2.putText(cv2Img, lpn, (int(left_up[0]), int(left_up[1])-20), cv2.FONT_ITALIC, 2, (0, 0, 255))
+        # dstFileName = 'result/' + ims[0][-5:-4] + '.jpg'
+        # cv2.imshow('charimg',cv2charimg)
+        # cv2.waitKey(0)
         # cv2.imwrite(dstFileName, cv2charimg)
         # print('图片保存地址', dstFileName)

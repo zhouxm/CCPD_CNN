@@ -9,6 +9,7 @@ from time import time
 from load_data import *
 from roi_pooling import roi_pooling_ims
 from torch.optim import lr_scheduler
+from loguru import logger
 
 # 计算模型参数数量
 def get_n_params(model):
@@ -230,7 +231,7 @@ class fh02(nn.Module):
 
 def isEqual(labelGT, labelP):
     compare = [1 if int(labelGT[i]) == int(labelP[i]) else 0 for i in range(7)]
-    # print(sum(compare))
+    # logger.info(sum(compare))
     return sum(compare)
 
 def eval(model, test_dirs):
@@ -314,7 +315,7 @@ def train_model(model, criterion, optimizer, num_epochs=25):
                         i * batchSize, time() - start,
                         sum(lossAver) / len(lossAver) if len(lossAver) > 0 else 'NoLoss'))
                 torch.save(model.state_dict(), storeName)
-        print('%s %s %s\n' % (epoch, sum(lossAver) / len(lossAver), time() - start))
+        logger.info('%s %s %s\n' % (epoch, sum(lossAver) / len(lossAver), time() - start))
         model.eval()
         count, correct, error, precision, avgTime = eval(model, testDirs)
         with open(args['writeFile'], 'a') as outF:
@@ -330,9 +331,9 @@ if __name__ == '__main__':
                     help="path to the input file")
     ap.add_argument("-n", "--epochs", default=10000,
                     help="epochs for train")
-    ap.add_argument("-b", "--batchsize", default=2,
+    ap.add_argument("-b", "--batchsize", default=5,
                     help="batch size for train")
-    ap.add_argument("-se", "--start_epoch", default=0,
+    ap.add_argument("-se", "--start_epoch", default=5,
                     help="start epoch for train")
     ap.add_argument("-t", "--test", required=True,
                     help="dirs for test")
@@ -344,11 +345,11 @@ if __name__ == '__main__':
                     help="file for output")
     ap.add_argument("--visdom",type=str,default="rpnet",help="name of visdom")
     args = vars(ap.parse_args())
-    vis=Visdom(args["visdom"])
+    # vis=Visdom(args["visdom"])
 
     wR2Path = 'weight/wR2.pth'
     use_gpu = torch.cuda.is_available()
-    print(use_gpu)
+    logger.info(f"torch.cuda.is_available:{use_gpu}")
 
     numClasses = 7  # 车牌位数为7位
     numPoints = 4  # 定位点数为4个
@@ -373,9 +374,9 @@ if __name__ == '__main__':
     if not resume_file == '111':  # 再训练
         # epoch_start = int(resume_file[resume_file.find('pth') + 3:]) + 1
         if not os.path.isfile(resume_file):
-            print("fail to load existed model! Existing ...")
+            logger.info("fail to load existed model! Existing ...")
             exit(0)
-        print("Load existed model! %s" % resume_file)
+        logger.info("Load existed model! %s" % resume_file)
         model_conv = fh02(numPoints, numClasses)
         model_conv = torch.nn.DataParallel(model_conv, device_ids=range(torch.cuda.device_count()))
         model_conv.load_state_dict(torch.load(resume_file))
@@ -386,8 +387,8 @@ if __name__ == '__main__':
             model_conv = torch.nn.DataParallel(model_conv, device_ids=range(torch.cuda.device_count()))
             model_conv = model_conv.cuda()
 
-    print(model_conv)
-    print('模型参数量' + str(get_n_params(model_conv)))
+    logger.info(model_conv)
+    logger.info('模型参数量' + str(get_n_params(model_conv)))
 
     criterion = nn.CrossEntropyLoss()
     # optimizer_conv = optim.RMSprop(model_conv.parameters(), lr=0.01, momentum=0.9)

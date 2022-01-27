@@ -166,7 +166,7 @@ if __name__=='__main__':
                     help="path to the input file")
     ap.add_argument("-n", "--epochs", default=25,
                     help="epochs for train")
-    ap.add_argument("-b", "--batchsize", default=4,
+    ap.add_argument("-b", "--batchsize", default=5,
                     help="batch size for train")
     ap.add_argument("-r", "--resume", default='111',
                     help="file for re-train")
